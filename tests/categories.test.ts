@@ -65,4 +65,42 @@ describe("category detection", () => {
     expect(s(hand.chosen5)).toEqual(["AC", "KS", "QH", "JD", "TC"]);
     expect(hand.tiebreak).toEqual([14]);
   });
+  it("detects flush", () => {
+    const hand = evaluateBestHand([
+      c("AH"), c("JH"), c("9H"), c("4H"), c("2C"), c("6H"), c("KD"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.Flush);
+    expect(s(hand.chosen5)).toEqual(["AH", "JH", "9H", "6H", "4H"]);
+  });
+
+  it("detects full house", () => {
+    const hand = evaluateBestHand([
+      c("6S"), c("6H"), c("6D"), c("KC"), c("KH"), c("2S"), c("3D"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.FullHouse);
+    expect(s(hand.chosen5)).toEqual(["6S", "6H", "6D", "KH", "KC"]);
+    expect(hand.tiebreak).toEqual([6, 13]);
+  });
+
+  it("detects four of a kind", () => {
+    const hand = evaluateBestHand([
+      c("7C"), c("7D"), c("7H"), c("7S"), c("AD"), c("2C"), c("3H"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.FourOfAKind);
+    expect(s(hand.chosen5)).toEqual(["7S", "7H", "7D", "7C", "AD"]);
+    expect(hand.tiebreak).toEqual([7, 14]);
+  });
+
+  it("detects straight flush", () => {
+    const hand = evaluateBestHand([
+      c("QH"), c("JH"), c("TH"), c("9H"), c("8H"), c("2C"), c("3D"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.StraightFlush);
+    expect(s(hand.chosen5)).toEqual(["QH", "JH", "TH", "9H", "8H"]);
+    expect(hand.tiebreak).toEqual([12]);
+  });
 });
