@@ -20,4 +20,21 @@ describe("category detection", () => {
     expect(hand.category).toBe(HandCategory.HighCard);
     expect(s(hand.chosen5)).toEqual(["AC", "KD", "8H", "6S", "4D"]);
   });
+  it("detects one pair", () => {
+    const hand = evaluateBestHand([
+      c("AC"), c("AD"), c("KH"), c("QS"), c("9D"), c("3C"), c("2H"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.OnePair);
+    expect(s(hand.chosen5)).toEqual(["AD", "AC", "KH", "QS", "9D"]);
+  });
+
+  it("detects two pair", () => {
+    const hand = evaluateBestHand([
+      c("AC"), c("AD"), c("KH"), c("KS"), c("9D"), c("3C"), c("2H"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.TwoPair);
+    expect(s(hand.chosen5)).toEqual(["AD", "AC", "KS", "KH", "9D"]);
+  });
 });
