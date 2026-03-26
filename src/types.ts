@@ -28,3 +28,18 @@ export type EvaluatedHand = {
   tiebreak: number[];
 };
 
+export type PlayerInput = {
+  id: string;
+  hole: [Card, Card];
+};
+
+export type PlayerResult = {
+  id: string;
+  hole: [Card, Card];
+  best: EvaluatedHand;
+};
+
+export type ComparePlayersResult = {
+  players: PlayerResult[];
+  winners: PlayerResult[];
+};
