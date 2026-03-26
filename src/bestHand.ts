@@ -1,23 +1,15 @@
-import { Card, EvaluatedHand, HandCategory } from "./types";
+import { evaluate5 } from "./evaluator5";
+import { Card, EvaluatedHand } from "./types";
+import { choose5, validateNoDuplicateCards } from "./utils";
 
-const RANK_VALUE: Record<string, number> = {
-  "2": 2,
-  "3": 3,
-  "4": 4,
-  "5": 5,
-  "6": 6,
-  "7": 7,
-  "8": 8,
-  "9": 9,
-  T: 10,
-  J: 11,
-  Q: 12,
-  K: 13,
-  A: 14,
-};
-
-function sortCardsDesc(cards: Card[]): Card[] {
-  return [...cards].sort((a, b) => RANK_VALUE[b.rank] - RANK_VALUE[a.rank]);
+function compareTiebreak(a: number[], b: number[]): number {
+  const len = Math.max(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const av = a[i] ?? 0;
+    const bv = b[i] ?? 0;
+    if (av !== bv) return av - bv;
+  }
+  return 0;
 }
 
 export function evaluateBestHand(cards: Card[]): EvaluatedHand {
@@ -25,12 +17,21 @@ export function evaluateBestHand(cards: Card[]): EvaluatedHand {
     throw new Error(`evaluateBestHand expects 7 cards, got ${cards.length}`);
   }
 
-  const chosen5 = sortCardsDesc(cards).slice(0, 5);
+  validateNoDuplicateCards(cards);
 
-  return {
-    category: HandCategory.HighCard,
-    categoryName: "High card",
-    chosen5,
-    tiebreak: chosen5.map((c) => RANK_VALUE[c.rank]),
-  };
+  const combos = choose5(cards);
+  let best = evaluate5(combos[0]);
+
+  for (const combo of combos.slice(1)) {
+    const current = evaluate5(combo);
+    if (
+      current.category > best.category ||
+      (current.category === best.category &&
+        compareTiebreak(current.tiebreak, best.tiebreak) > 0)
+    ) {
+      best = current;
+    }
+  }
+
+  return best;
 }
