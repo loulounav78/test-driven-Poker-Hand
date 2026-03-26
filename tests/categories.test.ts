@@ -37,4 +37,32 @@ describe("category detection", () => {
     expect(hand.category).toBe(HandCategory.TwoPair);
     expect(s(hand.chosen5)).toEqual(["AD", "AC", "KS", "KH", "9D"]);
   });
+  it("detects three of a kind", () => {
+    const hand = evaluateBestHand([
+      c("9C"), c("9D"), c("9H"), c("AS"), c("KD"), c("3C"), c("2H"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.ThreeOfAKind);
+    expect(s(hand.chosen5)).toEqual(["9H", "9D", "9C", "AS", "KD"]);
+  });
+
+  it("detects ace-low straight (wheel)", () => {
+    const hand = evaluateBestHand([
+      c("AC"), c("2D"), c("3H"), c("4S"), c("9D"), c("5C"), c("KD"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.Straight);
+    expect(s(hand.chosen5)).toEqual(["5C", "4S", "3H", "2D", "AC"]);
+    expect(hand.tiebreak).toEqual([5]);
+  });
+
+  it("detects ace-high straight", () => {
+    const hand = evaluateBestHand([
+      c("TC"), c("JD"), c("QH"), c("KS"), c("2D"), c("AC"), c("3D"),
+    ]);
+
+    expect(hand.category).toBe(HandCategory.Straight);
+    expect(s(hand.chosen5)).toEqual(["AC", "KS", "QH", "JD", "TC"]);
+    expect(hand.tiebreak).toEqual([14]);
+  });
 });
