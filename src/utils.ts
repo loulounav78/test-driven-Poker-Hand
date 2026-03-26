@@ -1,5 +1,5 @@
 import { Card } from "./types";
-import { formatCard, rankValue } from "./cards";
+import { formatCard, rankValue, sortCardsDesc } from "./cards";
 
 export function validateNoDuplicateCards(...groups: Card[][]): void {
   const seen = new Set<string>();
@@ -47,4 +47,60 @@ export function buildRankGroups(cards: Card[]): Array<{ rankValue: number; count
       if (b.count !== a.count) return b.count - a.count;
       return b.rankValue - a.rankValue;
     });
+}
+
+export function isConsecutiveDesc(values: number[]): boolean {
+  for (let i = 0; i < values.length - 1; i++) {
+    if (values[i] - 1 !== values[i + 1]) return false;
+  }
+  return true;
+}
+
+export function getStraightInfo(cards: Card[]): {
+  isStraight: boolean;
+  highCard: number;
+  orderedCards: Card[];
+} {
+  const byRank = new Map<number, Card>();
+
+  for (const card of sortCardsDesc(cards)) {
+    const v = rankValue(card);
+    if (!byRank.has(v)) {
+      byRank.set(v, card);
+    }
+  }
+
+  const uniqueRanksDesc = Array.from(byRank.keys()).sort((a, b) => b - a);
+
+  const wheel = [14, 5, 4, 3, 2];
+  if (wheel.every((r) => byRank.has(r))) {
+    return {
+      isStraight: true,
+      highCard: 5,
+      orderedCards: [
+        byRank.get(5)!,
+        byRank.get(4)!,
+        byRank.get(3)!,
+        byRank.get(2)!,
+        byRank.get(14)!,
+      ],
+    };
+  }
+
+  for (let i = 0; i <= uniqueRanksDesc.length - 5; i++) {
+    const slice = uniqueRanksDesc.slice(i, i + 5);
+    if (isConsecutiveDesc(slice)) {
+      return {
+        isStraight: true,
+        highCard: slice[0],
+        orderedCards: slice.map((r) => byRank.get(r)!),
+      };
+    }
+  }
+
+  return {
+    isStraight: false,
+    highCard: 0,
+    orderedCards: [],
+  };
 }
